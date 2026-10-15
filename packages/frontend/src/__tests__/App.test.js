@@ -37,6 +37,11 @@ const server = setupServer(
         created_at: new Date().toISOString(),
       })
     );
+  }),
+
+  // DELETE /api/items/:id handler
+  rest.delete('/api/items/:id', (req, res, ctx) => {
+    return res(ctx.status(204));
   })
 );
 
@@ -96,6 +101,27 @@ describe('App Component', () => {
     await waitFor(() => {
       expect(screen.getByText('New Test Item')).toBeInTheDocument();
     });
+  });
+
+  test('deletes an item', async () => {
+    const user = userEvent.setup();
+
+    await act(async () => {
+      render(<App />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Item 1')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await user.click(screen.getByLabelText('Delete Test Item 1'));
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Test Item 1')).not.toBeInTheDocument();
+    });
+    expect(screen.getByText('Test Item 2')).toBeInTheDocument();
   });
 
   test('handles API error', async () => {
